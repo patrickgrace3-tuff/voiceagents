@@ -1,9 +1,13 @@
 import { NextResponse } from "next/server";
-import type { PlaceCallRequest, PlaceCallResult } from "@/lib/types";
+import type { PlaceCallRequest, PlaceCallResult, Provider } from "@/lib/types";
 import { placeBlandCall } from "@/lib/bland";
 import { placeElevenLabsCall } from "@/lib/elevenlabs";
+import { placeVapiCall } from "@/lib/vapi";
+import { placeRetellCall } from "@/lib/retell";
 
 export const runtime = "nodejs";
+
+const PROVIDERS = new Set<Provider>(["bland", "elevenlabs", "vapi", "retell"]);
 
 export async function POST(request: Request) {
   let payload: PlaceCallRequest;
@@ -15,7 +19,7 @@ export async function POST(request: Request) {
 
   const { provider, phoneNumber, script } = payload ?? {};
 
-  if (provider !== "bland" && provider !== "elevenlabs") {
+  if (!PROVIDERS.has(provider)) {
     return json({ ok: false, message: "Unknown provider." }, 400);
   }
   if (!isValidPhone(phoneNumber)) {
@@ -48,31 +52,65 @@ export async function POST(request: Request) {
     return json(result, result.ok ? 200 : 502);
   }
 
-  // ElevenLabs
-  const apiKey = process.env.ELEVENLABS_API_KEY;
-  const agentId = process.env.ELEVENLABS_AGENT_ID;
-  const agentPhoneNumberId = process.env.ELEVENLABS_AGENT_PHONE_NUMBER_ID;
-  const missing = [
-    !apiKey && "ELEVENLABS_API_KEY",
-    !agentId && "ELEVENLABS_AGENT_ID",
-    !agentPhoneNumberId && "ELEVENLABS_AGENT_PHONE_NUMBER_ID",
-  ].filter(Boolean);
-  if (missing.length > 0) {
-    return json(
-      {
-        ok: false,
-        provider,
-        message: `Missing server env: ${missing.join(", ")} (.env.local).`,
-      },
-      400,
-    );
+  if (provider === "elevenlabs") {
+    const apiKey = process.env.ELEVENLABS_API_KEY;
+    const agentId = process.env.ELEVENLABS_AGENT_ID;
+    const agentPhoneNumberId = process.env.ELEVENLABS_AGENT_PHONE_NUMBER_ID;
+    const missing = missingEnv({
+      ELEVENLABS_API_KEY: apiKey,
+      ELEVENLABS_AGENT_ID: agentId,
+      ELEVENLABS_AGENT_PHONE_NUMBER_ID: agentPhoneNumberId,
+    });
+    if (missing) return json({ ok: false, provider, message: missing }, 400);
+    const result = await placeElevenLabsCall(phoneNumber, script, {
+      apiKey: apiKey!,
+      agentId: agentId!,
+      agentPhoneNumberId: agentPhoneNumberId!,
+    });
+    return json(result, result.ok ? 200 : 502);
   }
-  const result = await placeElevenLabsCall(phoneNumber, script, {
+
+  if (provider === "vapi") {
+    const apiKey = process.env.VAPI_API_KEY;
+    const phoneNumberId = process.env.VAPI_PHONE_NUMBER_ID;
+    const missing = missingEnv({
+      VAPI_API_KEY: apiKey,
+      VAPI_PHONE_NUMBER_ID: phoneNumberId,
+    });
+    if (missing) return json({ ok: false, provider, message: missing }, 400);
+    const result = await placeVapiCall(phoneNumber, script, {
+      apiKey: apiKey!,
+      phoneNumberId: phoneNumberId!,
+      modelProvider: process.env.VAPI_MODEL_PROVIDER || "openai",
+      model: process.env.VAPI_MODEL || "gpt-4o",
+    });
+    return json(result, result.ok ? 200 : 502);
+  }
+
+  // Retell
+  const apiKey = process.env.RETELL_API_KEY;
+  const fromNumber = process.env.RETELL_FROM_NUMBER;
+  const missing = missingEnv({
+    RETELL_API_KEY: apiKey,
+    RETELL_FROM_NUMBER: fromNumber,
+  });
+  if (missing) return json({ ok: false, provider, message: missing }, 400);
+  const result = await placeRetellCall(phoneNumber, script, {
     apiKey: apiKey!,
-    agentId: agentId!,
-    agentPhoneNumberId: agentPhoneNumberId!,
+    fromNumber: fromNumber!,
+    agentId: process.env.RETELL_AGENT_ID || undefined,
   });
   return json(result, result.ok ? 200 : 502);
+}
+
+/** Returns an error message listing any blank env vars, or null if all set. */
+function missingEnv(vars: Record<string, string | undefined>): string | null {
+  const missing = Object.entries(vars)
+    .filter(([, v]) => !v)
+    .map(([k]) => k);
+  return missing.length
+    ? `Missing server env: ${missing.join(", ")} (.env.local).`
+    : null;
 }
 
 function json(body: Partial<PlaceCallResult> & { message: string }, status: number) {

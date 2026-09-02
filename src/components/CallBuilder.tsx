@@ -13,8 +13,10 @@ import {
 import { compilePrompt } from "@/lib/prompt";
 
 const PROVIDERS: { id: Provider; label: string; blurb: string }[] = [
-  { id: "bland", label: "Bland.ai", blurb: "Self-contained telephony · supports background noise" },
-  { id: "elevenlabs", label: "ElevenLabs", blurb: "Via linked Twilio number · overrides agent prompt" },
+  { id: "bland", label: "Bland.ai", blurb: "Self-contained · background noise" },
+  { id: "vapi", label: "Vapi", blurb: "Inline assistant · background + latency" },
+  { id: "elevenlabs", label: "ElevenLabs", blurb: "Via linked Twilio number" },
+  { id: "retell", label: "Retell", blurb: "Dashboard agent · from a Retell number" },
 ];
 
 const RESPONSIVENESS: { id: Responsiveness; label: string; hint: string }[] = [
@@ -29,6 +31,25 @@ const BACKGROUND: { id: BackgroundTrack; label: string }[] = [
   { id: "cafe", label: "Café" },
   { id: "restaurant", label: "Restaurant" },
 ];
+
+/** Which providers apply which ambience, surfaced as an inline warning. */
+function backgroundNote(provider: Provider, track: BackgroundTrack): string | null {
+  if (track === "none") return null;
+  switch (provider) {
+    case "bland":
+      return null; // full support
+    case "vapi":
+      return track === "office"
+        ? null
+        : `Vapi only has an "office" ambience preset — "${track}" will be sent as off.`;
+    case "elevenlabs":
+      return "Background ambience isn't applied on ElevenLabs; it will be ignored.";
+    case "retell":
+      return "Retell ambience is set on the dashboard agent, not here; this will be ignored.";
+    default:
+      return null;
+  }
+}
 
 export default function CallBuilder() {
   const [provider, setProvider] = useState<Provider>("bland");
@@ -343,9 +364,9 @@ export default function CallBuilder() {
                     </button>
                   ))}
                 </div>
-                {provider === "elevenlabs" && script.backgroundTrack !== "none" && (
+                {backgroundNote(provider, script.backgroundTrack) && (
                   <p className="mt-2 text-xs text-amber-300/80">
-                    Background ambience is currently a Bland-only feature; it will be ignored on ElevenLabs.
+                    {backgroundNote(provider, script.backgroundTrack)}
                   </p>
                 )}
               </div>

@@ -26,3 +26,11 @@ services:
         sync: false
       - key: ELEVENLABS_AGENT_PHONE_NUMBER_ID
         sync: false
+      - key: VAPI_API_KEY
+        sync: false
+      - key: VAPI_PHONE_NUMBER_ID
+        sync: false
+      - key: RETELL_API_KEY
+        sync: false
+      - key: RETELL_FROM_NUMBER
+        sync: false

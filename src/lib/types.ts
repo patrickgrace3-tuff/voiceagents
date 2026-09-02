@@ -3,7 +3,7 @@
 // (Bland `task` string, ElevenLabs prompt override) so a single
 // definition can be A/B tested across providers.
 
-export type Provider = "bland" | "elevenlabs";
+export type Provider = "bland" | "elevenlabs" | "vapi" | "retell";
 
 /** How fast/eager the agent is to respond. Maps to provider latency knobs. */
 export type Responsiveness = "relaxed" | "balanced" | "snappy";
