@@ -59,6 +59,42 @@ ElevenLabs places outbound calls through a Twilio number linked to an agent:
 
 Background ambience is not applied on ElevenLabs yet (Bland-only feature).
 
+## Deploy to Render
+
+This app has server-side API routes that hold your provider keys, so deploy it
+as a **Web Service (Node)** — not a Static Site.
+
+A [`render.yaml`](./render.yaml) blueprint is included. Easiest path:
+
+1. Push this repo to GitHub (already done if you're reading this there).
+2. In Render: **New → Blueprint**, connect the repo. Render reads `render.yaml`
+   and creates the web service with the right build/start commands.
+3. Render prompts for the four secret env vars (they're marked `sync: false`,
+   so they never live in the repo):
+   - `BLAND_API_KEY`
+   - `ELEVENLABS_API_KEY`
+   - `ELEVENLABS_AGENT_ID`
+   - `ELEVENLABS_AGENT_PHONE_NUMBER_ID`
+4. Deploy. Your app is at `https://<name>.onrender.com`.
+
+Prefer not to use the blueprint? Create the service by hand with:
+
+| Setting        | Value                          |
+| -------------- | ------------------------------ |
+| Environment    | Node                           |
+| Build command  | `npm install && npm run build` |
+| Start command  | `npm start`                    |
+| Node version   | `22` (via `NODE_VERSION`)      |
+
+then add the four env vars under **Environment**.
+
+**Notes**
+- The `start` script binds `0.0.0.0` on Render's `$PORT`, as Render requires.
+- The **free** plan spins the service down when idle, so the first call after a
+  quiet spell has a cold-start delay. Fine for a test bench; bump to a paid plan
+  for always-on. (This is app cold-start, unrelated to in-call agent lag.)
+- Env vars are read server-side only; the browser never sees your keys.
+
 ## Project layout
 
 ```
