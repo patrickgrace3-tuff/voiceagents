@@ -1,9 +1,9 @@
 # Voice Agent Test Bench
 
 A small web app for **designing an AI phone-agent call script once and firing a
-live test call to any number** across four providers —
-[Bland.ai](https://app.bland.ai/), [Vapi](https://vapi.ai/),
-[ElevenLabs](https://elevenlabs.io/), and [Retell](https://retellai.com/).
+live test call to any number** across three providers —
+[Bland.ai](https://app.bland.ai/), [Vapi](https://vapi.ai/), and
+[ElevenLabs](https://elevenlabs.io/).
 Built to iterate on an existing production voice agent with three goals in mind:
 
 1. **Agent quality** — structure the call (opening, questions, qualification,
@@ -53,13 +53,6 @@ free Vapi number under **Phone Numbers**). It supports an `office` background
 preset and maps Responsiveness to `startSpeakingPlan.waitSeconds`. Make sure an
 LLM provider key is configured in your Vapi dashboard (defaults to OpenAI
 `gpt-4o`; override with `VAPI_MODEL_PROVIDER` / `VAPI_MODEL`).
-
-### Retell (needs a purchased number + dashboard agent)
-Retell runs the prompt from an agent you build in its dashboard, so — unlike the
-others — **the call script in this app isn't injected into a Retell call yet**.
-Set `RETELL_API_KEY` and `RETELL_FROM_NUMBER` (a number you bought in Retell,
-bound to an agent); optionally `RETELL_AGENT_ID` to override which agent answers.
-Injecting the compiled prompt via Retell's agent API is a planned follow-up.
 
 ### ElevenLabs (needs a linked Twilio number)
 ElevenLabs places outbound calls through a Twilio number linked to an agent:
@@ -129,7 +122,6 @@ src/
     bland.ts              # Bland.ai client
     vapi.ts               # Vapi client
     elevenlabs.ts         # ElevenLabs client
-    retell.ts             # Retell client
 ```
 
 ## Scripts
@@ -142,22 +134,20 @@ npm test        # run compiler unit tests
 
 ## How the settings map to each provider
 
-| UI control         | Bland.ai                                    | Vapi                                     | ElevenLabs               | Retell                    |
-| ------------------ | ------------------------------------------- | ---------------------------------------- | ------------------------ | ------------------------- |
-| Opening prompt     | `first_sentence`                            | `assistant.firstMessage`                 | `first_message` override | (dashboard agent)         |
-| Whole script       | `task`                                      | `assistant.model.messages[system]`       | `prompt.prompt` override | (dashboard agent)         |
-| Responsiveness     | `model` + `interruption_threshold`          | `startSpeakingPlan.waitSeconds`          | (agent settings)         | (dashboard agent)         |
-| Background ambience | `background_track`                         | `backgroundSound` (`office`/off)         | — (ignored)              | (dashboard agent)         |
-| Voice id           | `voice`                                     | `assistant.voice.voiceId` (11labs)       | `tts.voice_id` override  | (dashboard agent)         |
+| UI control         | Bland.ai                                    | Vapi                                     | ElevenLabs               |
+| ------------------ | ------------------------------------------- | ---------------------------------------- | ------------------------ |
+| Opening prompt     | `first_sentence`                            | `assistant.firstMessage`                 | `first_message` override |
+| Whole script       | `task`                                      | `assistant.model.messages[system]`       | `prompt.prompt` override |
+| Responsiveness     | `model` + `interruption_threshold`          | `startSpeakingPlan.waitSeconds`          | (agent settings)         |
+| Background ambience | `background_track`                         | `backgroundSound` (`office`/off)         | — (ignored)              |
+| Voice id           | `voice`                                     | `assistant.voice.voiceId` (11labs)       | `tts.voice_id` override  |
 
 Bland and Vapi are the true plug-and-play, script-driven providers. ElevenLabs
-needs a linked Twilio number; Retell runs its own dashboard agent (script
-injection is a planned follow-up).
+needs a linked Twilio number.
 
 ## Notes & next ideas
 
 - API keys stay server-side (env vars); the browser only talks to `/api/call`.
 - Natural next steps: pull call recordings/transcripts back for review, run the
   same script on multiple providers side-by-side and compare, persist scripts,
-  wire dynamic variables (`{{lead_first_name}}` / `{{company_name}}`), and inject
-  the compiled prompt into Retell via its agent API.
+  and wire dynamic variables (`{{lead_first_name}}` / `{{company_name}}`).

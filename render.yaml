@@ -30,7 +30,3 @@ services:
         sync: false
       - key: VAPI_PHONE_NUMBER_ID
         sync: false
-      - key: RETELL_API_KEY
-        sync: false
-      - key: RETELL_FROM_NUMBER
-        sync: false
