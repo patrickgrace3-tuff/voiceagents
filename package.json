@@ -1,0 +1,29 @@
+{
+  "name": "voiceagents",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Test bench for AI voice agents across Bland.ai and ElevenLabs — build a call script and fire a test call to any phone number.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start -H 0.0.0.0 -p ${PORT:-3000}",
+    "lint": "next lint",
+    "test": "node --test \"src/**/*.test.ts\""
+  },
+  "dependencies": {
+    "next": "15.5.4",
+    "react": "19.1.1",
+    "react-dom": "19.1.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.13",
+    "@types/node": "^22.10.5",
+    "@types/react": "^19.1.9",
+    "@types/react-dom": "^19.1.7",
+    "tailwindcss": "^4.1.13",
+    "typescript": "^5.7.3"
+  }
+}

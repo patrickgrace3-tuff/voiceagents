@@ -1,0 +1,36 @@
+# Render Blueprint — https://render.com/docs/blueprint-spec
+#
+# Deploys the Voice Agent Test Bench as a Node web service.
+# In Render: New → Blueprint → connect this repo. Render reads this file,
+# then prompts you to fill in the secret values (they are NOT stored here).
+services:
+  - type: web
+    name: voiceagents
+    runtime: node
+    plan: free # bump to "starter" to avoid free-tier cold starts
+    region: oregon # change to your nearest region if you like
+    buildCommand: npm install && npm run build
+    startCommand: npm start # binds 0.0.0.0 on Render's $PORT
+    healthCheckPath: /
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "22"
+      # ── Secrets — sync:false means Render prompts you and keeps them
+      #    out of the repo. Fill these in the dashboard / blueprint sync. ──
+      - key: BLAND_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_AGENT_ID
+        sync: false
+      - key: ELEVENLABS_AGENT_PHONE_NUMBER_ID
+        sync: false
+      - key: VAPI_API_KEY
+        sync: false
+      - key: VAPI_PHONE_NUMBER_ID
+        sync: false
+      - key: RETELL_API_KEY
+        sync: false
+      - key: RETELL_FROM_NUMBER
+        sync: false
