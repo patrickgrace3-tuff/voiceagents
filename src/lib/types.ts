@@ -66,23 +66,22 @@ export interface PlaceCallResult {
 }
 
 export const EMPTY_SCRIPT: CallScript = {
-  agentName: "Alex",
-  businessName: "Acme Solar",
+  agentName: "Patrick",
+  businessName: "Conversionia",
   objective:
-    "Qualify the homeowner for a free solar savings assessment and book a follow-up if they're a good fit.",
+    "Ask a couple of qualifying questions, then schedule a call with a recruiter.",
   openingPrompt:
-    "Hi, this is Alex calling from Acme Solar — do you have a quick minute?",
+    "Hi {{lead_first_name}} this is Patrick, your AI recruiter with {{company_name}}! I just got your short form and I've got a couple additional questions. After that, I'm happy to answer anything or connect you with a recruiter who can. Does that sound good?",
   questions: [
-    { id: "q1", text: "Do you own your home?", required: true },
-    { id: "q2", text: "Roughly what's your average monthly electric bill?", required: true },
-    { id: "q3", text: "Is your roof mostly shaded or does it get good sun?", required: false },
+    { id: "q1", text: "Do you have a Class A CDL?", required: true },
+    { id: "q2", text: "How much tractor trailer experience do you have?", required: true },
   ],
   qualificationCriteria:
-    "The person owns their home AND their monthly electric bill is $120 or more.",
+    "The driver has a Class A CDL AND at least some verifiable tractor-trailer experience.",
   qualifiedNextSteps:
-    "Let them know they're a great fit, and book a 15-minute assessment call with a specialist. Confirm the best day and time.",
+    "Get them scheduled with a recruiter. Confirm the best day and time, and let them know the recruiter will call them then.",
   notQualifiedNextSteps:
-    "Thank them politely, let them know we may reach out in the future, and end the call warmly. Do not book anything.",
+    "Let them know the next steps, and that a team member will reach out if they qualify. Thank them warmly. Do not schedule a recruiter call.",
   voice: "",
   responsiveness: "balanced",
   backgroundTrack: "office",
