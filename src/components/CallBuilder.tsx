@@ -118,7 +118,7 @@ export default function CallBuilder() {
       <header className="mb-8">
         <h1 className="text-2xl font-bold tracking-tight">Voice Agent Test Bench</h1>
         <p className="mt-1 text-sm text-[var(--muted)]">
-          Design one call script, then fire a live test to your phone across Bland.ai and ElevenLabs.
+          Design one call script, then fire a live test to your phone across Bland.ai, Vapi, ElevenLabs and Open.ai.
         </p>
       </header>
 
