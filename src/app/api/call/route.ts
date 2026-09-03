@@ -3,11 +3,11 @@ import type { PlaceCallRequest, PlaceCallResult, Provider } from "@/lib/types";
 import { placeBlandCall } from "@/lib/bland";
 import { placeElevenLabsCall } from "@/lib/elevenlabs";
 import { placeVapiCall } from "@/lib/vapi";
-import { placeRetellCall } from "@/lib/retell";
+import { placeOpenAICall } from "@/lib/openai";
 
 export const runtime = "nodejs";
 
-const PROVIDERS = new Set<Provider>(["bland", "elevenlabs", "vapi", "retell"]);
+const PROVIDERS = new Set<Provider>(["bland", "elevenlabs", "vapi", "openai"]);
 
 export async function POST(request: Request) {
   let payload: PlaceCallRequest;
@@ -87,20 +87,31 @@ export async function POST(request: Request) {
     return json(result, result.ok ? 200 : 502);
   }
 
-  // Retell
-  const apiKey = process.env.RETELL_API_KEY;
-  const fromNumber = process.env.RETELL_FROM_NUMBER;
-  const missing = missingEnv({
-    RETELL_API_KEY: apiKey,
-    RETELL_FROM_NUMBER: fromNumber,
-  });
-  if (missing) return json({ ok: false, provider, message: missing }, 400);
-  const result = await placeRetellCall(phoneNumber, script, {
-    apiKey: apiKey!,
-    fromNumber: fromNumber!,
-    agentId: process.env.RETELL_AGENT_ID || undefined,
-  });
-  return json(result, result.ok ? 200 : 502);
+  if (provider === "openai") {
+    // OpenAI's Realtime model runs over Vapi's telephony transport.
+    const vapiKey = process.env.VAPI_API_KEY;
+    const phoneNumberId = process.env.VAPI_PHONE_NUMBER_ID;
+    const missing = missingEnv({
+      VAPI_API_KEY: vapiKey,
+      VAPI_PHONE_NUMBER_ID: phoneNumberId,
+    });
+    if (missing) {
+      return json(
+        { ok: false, provider, message: `${missing} (OpenAI runs over Vapi's telephony.)` },
+        400,
+      );
+    }
+    const result = await placeOpenAICall(phoneNumber, script, {
+      vapiApiKey: vapiKey!,
+      vapiPhoneNumberId: phoneNumberId!,
+      model: process.env.OPENAI_MODEL || "gpt-realtime",
+      voice: process.env.OPENAI_VOICE || "marin",
+    });
+    return json(result, result.ok ? 200 : 502);
+  }
+
+  // Unreachable: provider was validated against PROVIDERS above.
+  return json({ ok: false, provider, message: "Unknown provider." }, 400);
 }
 
 /** Returns an error message listing any blank env vars, or null if all set. */

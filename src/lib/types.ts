@@ -3,7 +3,7 @@
 // (Bland `task` string, ElevenLabs prompt override) so a single
 // definition can be A/B tested across providers.
 
-export type Provider = "bland" | "elevenlabs" | "vapi" | "retell";
+export type Provider = "bland" | "elevenlabs" | "vapi" | "openai";
 
 /** How fast/eager the agent is to respond. Maps to provider latency knobs. */
 export type Responsiveness = "relaxed" | "balanced" | "snappy";
@@ -71,7 +71,7 @@ export const EMPTY_SCRIPT: CallScript = {
   objective:
     "Ask a couple of qualifying questions, then schedule a call with a recruiter.",
   openingPrompt:
-    "Hi {{lead_first_name}} this is Patrick, your AI recruiter with {{company_name}}! I just got your short form and I've got a couple additional questions. After that, I'm happy to answer anything or connect you with a recruiter who can. Does that sound good?",
+    "Hi! this is Patrick, your AI recruiter with Conversionia! I just got your short form and I've got a couple additional questions. After that, I'm happy to answer anything or connect you with a recruiter who can. Does that sound good?",
   questions: [
     { id: "q1", text: "Do you have a Class A CDL?", required: true },
     { id: "q2", text: "How much tractor trailer experience do you have?", required: true },
