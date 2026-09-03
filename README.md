@@ -4,7 +4,7 @@ A small web app for **designing an AI phone-agent call script once and firing a
 live test call to any number** across four providers —
 [Bland.ai](https://app.bland.ai/), [Vapi](https://vapi.ai/),
 [ElevenLabs](https://elevenlabs.io/), and [OpenAI](https://platform.openai.com/)
-(`gpt-realtime`).
+(`gpt-realtime-2`).
 Built to iterate on an existing production voice agent with three goals in mind:
 
 1. **Agent quality** — structure the call (opening, questions, qualification,
@@ -69,7 +69,7 @@ ElevenLabs places outbound calls through a Twilio number linked to an agent:
 
 Background ambience is not applied on ElevenLabs yet (Bland-only feature).
 
-### OpenAI (`gpt-realtime`, their best voice)
+### OpenAI (`gpt-realtime-2`, their best voice)
 OpenAI's Realtime API is speech-to-speech only — it has **no telephony of its
 own** — so this provider places the call over **Vapi's transport** and sets the
 assistant's model *and* voice to OpenAI. You hear OpenAI end to end; Vapi is just
@@ -79,8 +79,10 @@ the phone line.
    OpenAI reuses it as the transport.
 2. In the **Vapi dashboard → Provider Keys**, add your **OpenAI API key** so Vapi
    can reach the Realtime model on your behalf.
-3. Optional overrides: `OPENAI_MODEL` (default `gpt-realtime`) and `OPENAI_VOICE`
-   (default `marin`; try `cedar` or `alloy` if a voice id is rejected).
+3. Optional overrides: `OPENAI_MODEL` (default `gpt-realtime-2`; must be a
+   realtime model id Vapi accepts, e.g. `gpt-realtime-2025-08-28` or
+   `gpt-realtime-mini-2025-12-15`) and `OPENAI_VOICE` (default `marin`; try
+   `cedar` or `alloy` if a voice id is rejected).
 
 ## Deploy to Render
 
@@ -158,7 +160,7 @@ npm test        # run compiler unit tests
 | Voice id           | `voice`                                     | `assistant.voice.voiceId` (11labs)       | `tts.voice_id` override  | OpenAI voice (`marin`/`cedar`/…)    |
 
 Bland and Vapi are the true plug-and-play, script-driven providers. ElevenLabs
-needs a linked Twilio number. OpenAI runs its `gpt-realtime` speech-to-speech
+needs a linked Twilio number. OpenAI runs its `gpt-realtime-2` speech-to-speech
 model over Vapi's transport (set your OpenAI key in Vapi's Provider Keys).
 
 ## Notes & next ideas

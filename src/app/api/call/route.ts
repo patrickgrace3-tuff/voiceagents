@@ -104,7 +104,7 @@ export async function POST(request: Request) {
     const result = await placeOpenAICall(phoneNumber, script, {
       vapiApiKey: vapiKey!,
       vapiPhoneNumberId: phoneNumberId!,
-      model: process.env.OPENAI_MODEL || "gpt-realtime",
+      model: process.env.OPENAI_MODEL || "gpt-realtime-2",
       voice: process.env.OPENAI_VOICE || "marin",
     });
     return json(result, result.ok ? 200 : 502);

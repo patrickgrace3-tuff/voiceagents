@@ -7,7 +7,9 @@ export interface OpenAIConfig {
   /** Vapi is used purely as the telephony transport for the call. */
   vapiApiKey: string;
   vapiPhoneNumberId: string;
-  /** OpenAI speech-to-speech model. Defaults to gpt-realtime (their best). */
+  /** OpenAI speech-to-speech model. Defaults to gpt-realtime-2 (their best).
+   *  Must be a realtime model id Vapi accepts, e.g. gpt-realtime-2,
+   *  gpt-realtime-2025-08-28, or gpt-realtime-mini-2025-12-15. */
   model: string;
   /** OpenAI Realtime voice id (e.g. marin, cedar, alloy). */
   voice: string;
