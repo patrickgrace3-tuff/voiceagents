@@ -1,9 +1,10 @@
 # Voice Agent Test Bench
 
 A small web app for **designing an AI phone-agent call script once and firing a
-live test call to any number** across three providers —
-[Bland.ai](https://app.bland.ai/), [Vapi](https://vapi.ai/), and
-[ElevenLabs](https://elevenlabs.io/).
+live test call to any number** across four providers —
+[Bland.ai](https://app.bland.ai/), [Vapi](https://vapi.ai/),
+[ElevenLabs](https://elevenlabs.io/), and [OpenAI](https://platform.openai.com/)
+(`gpt-realtime`).
 Built to iterate on an existing production voice agent with three goals in mind:
 
 1. **Agent quality** — structure the call (opening, questions, qualification,
@@ -68,6 +69,19 @@ ElevenLabs places outbound calls through a Twilio number linked to an agent:
 
 Background ambience is not applied on ElevenLabs yet (Bland-only feature).
 
+### OpenAI (`gpt-realtime`, their best voice)
+OpenAI's Realtime API is speech-to-speech only — it has **no telephony of its
+own** — so this provider places the call over **Vapi's transport** and sets the
+assistant's model *and* voice to OpenAI. You hear OpenAI end to end; Vapi is just
+the phone line.
+
+1. Set up the **Vapi** provider above (`VAPI_API_KEY` + `VAPI_PHONE_NUMBER_ID`) —
+   OpenAI reuses it as the transport.
+2. In the **Vapi dashboard → Provider Keys**, add your **OpenAI API key** so Vapi
+   can reach the Realtime model on your behalf.
+3. Optional overrides: `OPENAI_MODEL` (default `gpt-realtime`) and `OPENAI_VOICE`
+   (default `marin`; try `cedar` or `alloy` if a voice id is rejected).
+
 ## Deploy to Render
 
 This app has server-side API routes that hold your provider keys, so deploy it
@@ -122,6 +136,7 @@ src/
     bland.ts              # Bland.ai client
     vapi.ts               # Vapi client
     elevenlabs.ts         # ElevenLabs client
+    openai.ts             # OpenAI (gpt-realtime) client, over Vapi transport
 ```
 
 ## Scripts
@@ -134,16 +149,17 @@ npm test        # run compiler unit tests
 
 ## How the settings map to each provider
 
-| UI control         | Bland.ai                                    | Vapi                                     | ElevenLabs               |
-| ------------------ | ------------------------------------------- | ---------------------------------------- | ------------------------ |
-| Opening prompt     | `first_sentence`                            | `assistant.firstMessage`                 | `first_message` override |
-| Whole script       | `task`                                      | `assistant.model.messages[system]`       | `prompt.prompt` override |
-| Responsiveness     | `model` + `interruption_threshold`          | `startSpeakingPlan.waitSeconds`          | (agent settings)         |
-| Background ambience | `background_track`                         | `backgroundSound` (`office`/off)         | — (ignored)              |
-| Voice id           | `voice`                                     | `assistant.voice.voiceId` (11labs)       | `tts.voice_id` override  |
+| UI control         | Bland.ai                                    | Vapi                                     | ElevenLabs               | OpenAI                              |
+| ------------------ | ------------------------------------------- | ---------------------------------------- | ------------------------ | ----------------------------------- |
+| Opening prompt     | `first_sentence`                            | `assistant.firstMessage`                 | `first_message` override | `assistant.firstMessage`            |
+| Whole script       | `task`                                      | `assistant.model.messages[system]`       | `prompt.prompt` override | `assistant.model.messages[system]`  |
+| Responsiveness     | `model` + `interruption_threshold`          | `startSpeakingPlan.waitSeconds`          | (agent settings)         | `startSpeakingPlan.waitSeconds`     |
+| Background ambience | `background_track`                         | `backgroundSound` (`office`/off)         | — (ignored)              | `backgroundSound` (`office`/off)    |
+| Voice id           | `voice`                                     | `assistant.voice.voiceId` (11labs)       | `tts.voice_id` override  | OpenAI voice (`marin`/`cedar`/…)    |
 
 Bland and Vapi are the true plug-and-play, script-driven providers. ElevenLabs
-needs a linked Twilio number.
+needs a linked Twilio number. OpenAI runs its `gpt-realtime` speech-to-speech
+model over Vapi's transport (set your OpenAI key in Vapi's Provider Keys).
 
 ## Notes & next ideas
 

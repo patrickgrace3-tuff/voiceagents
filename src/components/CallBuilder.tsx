@@ -16,6 +16,7 @@ const PROVIDERS: { id: Provider; label: string; blurb: string }[] = [
   { id: "bland", label: "Bland.ai", blurb: "Self-contained · background noise" },
   { id: "vapi", label: "Vapi", blurb: "Inline assistant · background + latency" },
   { id: "elevenlabs", label: "ElevenLabs", blurb: "Via linked Twilio number" },
+  { id: "openai", label: "OpenAI", blurb: "gpt-realtime speech-to-speech" },
 ];
 
 const RESPONSIVENESS: { id: Responsiveness; label: string; hint: string }[] = [
@@ -38,9 +39,10 @@ function backgroundNote(provider: Provider, track: BackgroundTrack): string | nu
     case "bland":
       return null; // full support
     case "vapi":
+    case "openai":
       return track === "office"
         ? null
-        : `Vapi only has an "office" ambience preset — "${track}" will be sent as off.`;
+        : `Only an "office" ambience preset is available — "${track}" will be sent as off.`;
     case "elevenlabs":
       return "Background ambience isn't applied on ElevenLabs; it will be ignored.";
     default:
@@ -316,7 +318,13 @@ export default function CallBuilder() {
                 </label>
                 <input
                   className="field-input"
-                  placeholder={provider === "bland" ? "e.g. maya" : "e.g. 21m00Tcm4TlvDq8ikWAM"}
+                  placeholder={
+                    provider === "bland"
+                      ? "e.g. maya"
+                      : provider === "openai"
+                        ? "e.g. marin, cedar, alloy"
+                        : "e.g. 21m00Tcm4TlvDq8ikWAM"
+                  }
                   value={script.voice}
                   onChange={(e) => patch({ voice: e.target.value })}
                 />
